@@ -1,0 +1,7 @@
+1 Oracle的GROUP BY语句除了最基本的语法外，还支持ROLLUP和CUBE语句。如果是ROLLUP(A, B, C)的话，首先会对(A、B、C)进行GROUP BY，然后对(A、B)进行GROUP BY，然后是(A)进行GROUP BY，最后对全表进行GROUP BY操作。如果是GROUP BY CUBE(A, B, C)，则首先会对(A、B、C)进行GROUP BY，然后依次是(A、B)，(A、C)，(A)，(B、C)，(B)，(C)，最后对全表进行GROUP BY操作。 
+
+2 用GROUP BY GROUPING SETS来代替GROUP BY CUBE。你可以应用来指定你感兴趣的总数组合。因为它不必计算它不需要集合（也不会产生太多结果），所以对SQL引擎来说更为高效。 
+其格式为： 
+GROUP BY GROUPING SETS ((list), (list) ... ) 
+
+这里（list）是圆括号中的一个列序列，这个组合生成一个总数。要增加一个总和，必须增加一个(NUlL)分组集。

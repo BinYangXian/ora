@@ -1,0 +1,63 @@
+select province_id,
+           city_id,
+           cust_type,
+           cust_regfrom,
+           VERIFY_TYPE,
+           sum(NEW_USER) NEW_USER,
+           sum(TOTAL_USER) TOTAL_USER
+      from (select nvl(province_id, '9999999999') province_id,
+                   nvl(city_id, '9999999999') city_id,
+                   nvl(cust_type, '9999999999') cust_type,
+                   nvl(cust_regfrom, '9999999999') cust_regfrom,
+                   nvl(decode(VERIFY_EMAIL,
+                              0,
+                              '邮箱',
+                              decode(VERIFY_PHONE,
+                                     0,
+                                     '手机',
+                                     decode(VERIFY_BANK,
+                                            0,
+                                            '银行',
+                                            decode(VERIFY_CERT, 0, '身份证')))),
+                       '9999999999') VERIFY_TYPE,
+                   NEW_USER,
+                   TOTAL_USER
+              from (select m.province_id,
+                           m.city_id,
+                           m.cust_type,
+                           m.cust_regfrom,
+                           decode(grouping_id(m.VERIFY_PHONE),
+                                  1,
+                                  '合计',
+                                  m.VERIFY_PHONE) VERIFY_PHONE,
+                           decode(grouping_id(m.VERIFY_EMAIL),
+                                  1,
+                                  '合计',
+                                  m.VERIFY_EMAIL) VERIFY_EMAIL,
+                           decode(grouping_id(m.VERIFY_CERT),
+                                  1,
+                                  '合计',
+                                  m.VERIFY_CERT) VERIFY_CERT,
+                           decode(grouping_id(m.VERIFY_BANK),
+                                  1,
+                                  '合计',
+                                  m.VERIFY_BANK) VERIFY_BANK,
+                           COUNT(M.CUST_ID) NEW_USER,
+                           COUNT(M.CUST_ID) TOTAL_USER
+                      from EM_CUST_ATTRIBUTE m
+                     where m.cust_regdate <=
+                           to_date('2010-06-01', 'yyyy-MM-dd')
+                    
+                     group by m.province_id,
+                              m.city_id,
+                              m.cust_type,
+                              m.cust_regfrom,
+                              cube(m.VERIFY_PHONE,
+                                   m.VERIFY_EMAIL,
+                                   m.VERIFY_CERT,
+                                   m.VERIFY_BANK)) t
+             where VERIFY_PHONE <> '合计'
+               and VERIFY_EMAIL <> '合计'
+               and VERIFY_CERT <> '合计'
+               and VERIFY_BANK <> '合计') f
+     group by province_id, city_id, cust_type, cust_regfrom, VERIFY_TYPE;

@@ -1,0 +1,32 @@
+以下给出部分repeat_interval的写法实例，以供参考 
+每两个小时运行一次：
+	'FREQ=HOURLY;INTERVAL=2'
+每天运行一次：
+	'FREQ=DAILY'
+指定每周1、3、5运行一次
+	'FREQ=WEEKLY;BYDAY=MON,WED,FRI;'
+指定每年3,6,9,12月的2号运行一次:
+	'FREQ=YEARLY;BYMONTH=MAR,JUN,SEP,DEC;BYMONTHDAY=2'
+指定每隔周周五运行一次：
+	'FREQ=WEEKLY;INTERVAl= 2;BYDAY=FRI;'
+指定每月最后一天运行：
+	'FREQ=MONTHLY;BYMONTHDAY=-1;'
+指定每年3月10号运行的日期：
+'FREQ=YEARLY;BYMONTH=MAR,JUN,SEP,DEC;BYMONTHDAY=10;'
+	或者
+	'FREQ=YEARLY;BYDATE=0310;'
+指定每天下午4点，5点和6点运行：
+	'FREQ=DAILY;BYHOUR=16,17,18;'
+指定每月第2个星期三运行的日期表达式：
+	'FREQ=MONTHLY;BYDAY=2WED;'
+指定每年最后一个星期五运行的日期表达式：
+	'FREQ=YEARLY;BYDAY=-1FRI;’
+指定每个月前3天每小时运行一次的日期表达式：
+	'FREQ=HOURLY;BYMONTHDAY=1,2,3'
+
+指定每分钟运行一次的日期表达式：	
+	'FREQ=MINUTELY;INTERVAL=1' 
+指定每隔四个小时运行一次的日期表达式；
+        'FREQ=HOURLY;INTERVAL=4;BYMINUTE=0;BYSECOND=0' 
+指定每周1,2,3,4,5 的7点到下午三点 运行一次的日期表达式：
+       'FREQ=DAILY; BYDAY=MON,TUE,WED,THU,FRI; BYHOUR=7,15; BYMINUTE=0;BYSECOND=0' 

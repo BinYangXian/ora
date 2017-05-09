@@ -1,0 +1,16 @@
+两个表  字段完全一样
+例如：emp  表   emp_ copy  表
+要求 ：写一个触发器  
+提示：  :new   :old
+当往emp表内添加数据且deptno=10的时候 往emp_copy表copy此数据
+在emp表更新数据时且修改deptno=10 的时候   往emp_copy表copy此数据
+（修改数据后 只要 deptno 为10 就copy）
+
+
+create or replace trigger  tr_emp_copy
+  after  insert or update on emp for each row
+begin 
+  if :new.deptno=10 and (:old.deptno is null or :new.deptno<>:old.deptno) then
+     insert into emp_copy(empno,ename,deptno) values(:new.empno,:new.ename,:new.deptno);
+  end if;
+end;

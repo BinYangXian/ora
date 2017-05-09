@@ -1,0 +1,12 @@
+create user 用户名 identified by 密码  --必须是管理员（dba）身份才可以创建用户
+创建新用户后需要  赋回话权限    ：grant create session to stu；
+grant create view to scott 
+grant select，insert on emp to hr;
+grant select, insert on hrempview to hr;
+
+切换到hr用户，可以正常对emp表执行select和insert操作。
+
+之后，再在Scott用户下，收回hr对emp的权限
+revoke all on emp from hr;
+--赋予存储过程debug权限
+grant debug connect session to scott;

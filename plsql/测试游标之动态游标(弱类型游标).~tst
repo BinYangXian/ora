@@ -1,0 +1,41 @@
+PL/SQL Developer Test script 3.0
+37
+-- 测试游标之动态游标(若类型游标)
+declare 
+  -- 声明类型
+  -- 相当于List<Object>
+  type v_cursor_type is ref cursor;
+  
+  -- 声明变量
+  v_cursor v_cursor_type;
+  
+  
+  v_emp_row emp%rowtype;
+  
+  v_dept_row dept%rowtype;
+  
+begin
+  -- Test statements here
+  
+  open v_cursor for select * from emp;
+  
+  loop
+       fetch v_cursor into v_emp_row;
+       exit when v_cursor%notfound;
+       dbms_output.put_line(v_emp_row.ename);  
+  end loop;
+  
+  close v_cursor;
+  
+  
+  open v_cursor for select * from dept;
+  loop
+       fetch v_cursor into v_dept_row;
+       exit when v_cursor%notfound;
+       dbms_output.put_line(v_dept_row.dname); 
+  end loop;
+  close v_cursor;
+  
+end;
+0
+0

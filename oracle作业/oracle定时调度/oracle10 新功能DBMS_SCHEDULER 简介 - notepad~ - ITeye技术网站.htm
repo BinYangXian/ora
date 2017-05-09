@@ -1,0 +1,508 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>oracle10 新功能DBMS_SCHEDULER 简介 - notepad~ - ITeye技术网站</title>
+    <meta name="description" content="&nbsp;  Oracle 10g新增了scheduler的功能，功能比job强大的很多，Oracle官方也建议将job转移到scheduler 。&nbsp;    先解释一下基础概念，scheduler 包含了以下几个实体对象&nbsp;  Program -- 提供了scheduler 将要运行什么，包含program name，program type(PLSQL块、存储过程、外部程序)，program action( ...">
+    <meta name="keywords" content="oracle oracle10 新功能DBMS_SCHEDULER 简介">
+    <link rel="shortcut icon" href="http://chenlin10058.iteye.com/images/favicon.ico" type="image/x-icon">
+    <link rel="search" type="application/opensearchdescription+xml" href="http://chenlin10058.iteye.com/open_search.xml" title="ITeye">
+    <link href="http://chenlin10058.iteye.com/rss" rel="alternate" title="notepad~" type="application/rss+xml">
+    <link href="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/blog.css" media="screen" rel="stylesheet" type="text/css">
+<link href="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/blue.css" media="screen" rel="stylesheet" type="text/css">
+    <script src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/ga.js" async="" type="text/javascript"></script><script src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/application.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-535605-1']);
+  _gaq.push(['_setDomainName', 'iteye.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+      <link href="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/SyntaxHighlighter.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/shCoreCommon.js" type="text/javascript"></script>
+<script src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/hotkey.js" type="text/javascript"></script>
+  <script src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/code_favorites.js" type="text/javascript"></script>
+<script src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/weiboshare.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <div id="header">
+      <div id="blog_site_nav">
+  <a href="http://www.iteye.com/" class="homepage">首页</a>
+  <a href="http://www.iteye.com/news">资讯</a>
+  <a href="http://www.iteye.com/magazines">精华</a>
+  <a href="http://www.iteye.com/forums">论坛</a>
+  <a href="http://www.iteye.com/ask">问答</a>
+  <a href="http://www.iteye.com/blogs">博客</a>
+  <a href="http://www.iteye.com/blogs/subjects">专栏</a>
+  <a href="http://www.iteye.com/groups">群组</a>
+  <a href="#" onclick="return false;" id="msna"><u>更多</u> <small>▼</small></a>
+  <div class="quick_menu" style="display:none;">
+    <a target="_blank" href="http://job.iteye.com/iteye">招聘</a>
+    <a href="http://www.iteye.com/search">搜索</a>
+  </div>
+</div>
+
+      <div id="user_nav">
+      <a href="http://chenlin10058.iteye.com/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="http://chenlin10058.iteye.com/login">登录</a>
+    <a href="http://chenlin10058.iteye.com/signup" class="nobg">注册</a>
+  </div>
+
+    </div>
+
+    <div id="page">
+      <div id="branding" class="clearfix">
+        <div id="blog_name">
+          <h1><a href="http://chenlin10058.iteye.com/">notepad~</a></h1>
+        </div>
+        <div id="fd"></div>
+        <div id="blog_navbar">
+          <ul>
+            <li class="blog_navbar_for"><a href="http://chenlin10058.iteye.com/"><strong>博客</strong></a></li>
+            <li><a href="http://chenlin10058.iteye.com/weibo">微博</a></li>
+            <li><a href="http://chenlin10058.iteye.com/album">相册</a></li>
+            <li><a href="http://chenlin10058.iteye.com/link">收藏</a></li>
+            <li><a href="http://chenlin10058.iteye.com/blog/guest_book">留言</a></li>
+            <li><a href="http://chenlin10058.iteye.com/blog/profile">关于我</a></li>
+          </ul>
+    
+          <div class="search">
+            <form action="/blog/search" method="get">
+              <input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text">
+              <input class="submit_search" value="" type="submit">
+            </form>
+          </div> 
+          <div id="fd"></div>         
+        </div>
+      </div>
+      
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+
+          
+
+
+<div class="h-entry" style="display:none">
+  <a href="http://chenlin10058.iteye.com/" class="p-author" target="_blank">chenlin10058</a>
+</div>
+
+
+<div class="blog_main">
+  <div class="blog_title">
+    <h3>
+      <a href="http://chenlin10058.iteye.com/blog/1558488">oracle10 新功能DBMS_SCHEDULER 简介</a>
+      <em class="actions">      </em>
+    </h3>
+    <ul class="blog_categories"><strong>博客分类：</strong> <li><a href="http://chenlin10058.iteye.com/category/227441">oracle基础</a></li> </ul>
+        <div class="news_tag"><a href="http://www.iteye.com/blogs/tag/oracle">oracle</a>&nbsp;</div>
+  </div>
+
+  <div id="blog_content" class="blog_content">
+    <p>&nbsp;</p>
+<p><span style="font-size: small;">Oracle 10g新增了scheduler的功能，功能比job强大的很多，Oracle官方也建议将job转移到scheduler 。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">先解释一下基础概念，scheduler 包含了以下几个实体对象&nbsp;</span></p>
+<p><span style="font-size: small;">Program -- 提供了scheduler 
+将要运行什么，包含program name，program type(PLSQL块、存储过程、外部程序)，program 
+action(具体的程序实体，比如说一个PLSQL块、或者是存储过程的名称、或者是外部程序的路径加名称) 。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">Schedules -- 指定何时何种频率来运行job，可以被不同的job重复的利用。比如说我有两个job都要求在每天的凌晨4点运行，那么两个job可以同时指定相同的schedule。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">Jobs -- 具体的作业的名称，依赖于那个program、schedule。也可以不指定program、schedule，而直接写入program、schedule的相应参数。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">Chains -- 把一组program像一个单独的实体连接在一起，作为一个对象。Job可以指向Chains代替单一的program 。这样就能完成类似如下功能：运行A，然后运行B，当A、B都运行成功则运行C，否则运行D。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">下面参考文档边看边做。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">&nbsp; 1.创建一张表 &nbsp;create table scheduler_test(id number,instime date);&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; 2.创建一个存储过程，实现往表中插入资料。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">create or replace procedure p_insSysdate as&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp;id number;&nbsp;</span></p>
+<p><span style="font-size: small;">begin&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp;select count(*) into id from scheduler_test;&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp;insert into scheduler_test values(id,sysdate);&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp;commit;&nbsp;</span></p>
+<p><span style="font-size: small;">end;&nbsp;</span></p>
+<p><span style="font-size: small;">/&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; 3.创建一个schedule，这个仅仅是一个时间上的安排，由DBMS_SCHEDULER.CREATE_JOB调用。这样就可以重用schedule，并且schedule在时间的安排上强大与原先的JOB 。语法如下：&nbsp;</span></p>
+<p><span style="font-size: small;">BEGIN&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; SYS.DBMS_SCHEDULER.CREATE_SCHEDULE&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; (&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; schedule_name &nbsp; &nbsp;=&gt; 'SCOTT.EVERY_MINUTE'&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,start_date &nbsp; &nbsp; &nbsp; =&gt; NULL&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,repeat_interval &nbsp;=&gt; 'FREQ=MINUTELY'&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,end_date &nbsp; &nbsp; &nbsp; &nbsp; =&gt; NULL&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,comments &nbsp; &nbsp; &nbsp; &nbsp; =&gt; NULL&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; );&nbsp;</span></p>
+<p><span style="font-size: small;">END;&nbsp;</span></p>
+<p><span style="font-size: small;">/&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">以下给出部分repeat_interval的写法实例，以供参考&nbsp;</span></p>
+<p><span style="font-size: small;">EVERY DAY &nbsp; &nbsp; &nbsp; &nbsp;
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;'FREQ=DAILY;INTERVAL=1'&nbsp;</span></p>
+<p><span style="font-size: small;">EVERY MINUTE &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+'FREQ=MINUTELY;INTERVAL=1'&nbsp;</span></p>
+<p><span style="font-size: small;">EVERY 4 HOURS ON THE HOUR &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 'FREQ=HOURLY;INTERVAL=4;BYMINUTE=0;BYSECOND=0'&nbsp;</span></p>
+<p><span style="font-size: small;">1st DAY OF EVERY MONTH &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;'FREQ=DAILY;BYMONTHDAY=1'&nbsp;</span></p>
+<p><span style="font-size: small;">WEEKDAYS AT 7am and 3pm &nbsp; &nbsp;
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;'FREQ=DAILY; 
+BYDAY=MON,TUE,WED,THU,FRI; BYHOUR=7,15; BYMINUTE=0;BYSECOND=0'&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp;4.创建DBMS_SCHEDULER.CREATE_PROGRAM,指定运行什么样的程序。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">BEGIN&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; SYS.DBMS_SCHEDULER.CREATE_PROGRAM&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; (&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; program_name &nbsp; &nbsp; &nbsp; &nbsp; =&gt; 'SCOTT.PRG_INSSYSDATE'&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,program_type &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; =&gt; 'STORED_PROCEDURE'&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,program_action &nbsp; &nbsp; &nbsp; &nbsp; =&gt; 'p_insSysdate'&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,number_of_arguments &nbsp;=&gt; 0&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,enabled &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; =&gt; TRUE&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp;,comments &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; =&gt; NULL&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; );&nbsp;</span></p>
+<p><span style="font-size: small;">END;&nbsp;</span></p>
+<p><span style="font-size: small;">/&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">program_type有三类 
+'PLSQL_BLOCK','STORED_PROCEDURE','EXECUTABLE'分别表示program_action为PLSQL块、存
+储过程、外部操作系统程序。number_of_arguments表需要传入的参数个数，至于参数如何传入，以后再来研究。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">5. 现在来创建一个JOB,并使用先前的schedule、program 。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">BEGIN&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; SYS.DBMS_SCHEDULER.CREATE_JOB&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; (&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; &nbsp;job_name &nbsp; &nbsp; &nbsp; &nbsp;=&gt; 'SCOTT.JOB_INSSYSDATE'&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; ,schedule_name &nbsp; =&gt; 'SCOTT.EVERY_MINUTE'&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; ,program_name &nbsp; &nbsp;=&gt; 'SCOTT.PRG_INSSYSDATE'&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; ,comments &nbsp; &nbsp; &nbsp; &nbsp;=&gt; NULL&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; );&nbsp;</span></p>
+<p><span style="font-size: small;">END;&nbsp;</span></p>
+<p><span style="font-size: small;">/&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">DBMS_SCHEDULER.CREATE_JOB中有一个参数auto_drop，如果设置成TRUE，job执行完成或者job变成disabled则job自动被删除。如下三种情况job被认为是completed&nbsp;</span></p>
+<p><span style="font-size: small;">1) Its end date (or its schedule's end date) has passed.&nbsp;</span></p>
+<p><span style="font-size: small;">2) It has runmax_runsnumber of times.max_runsmust be set withSET_ATTRIBUTE.&nbsp;</span></p>
+<p><span style="font-size: small;">3) It is not a repeating job and has run once.&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">下面来查看一下&nbsp;</span></p>
+<p><span style="font-size: small;">select * from scheduler_test;&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; &nbsp; ID INSTIME&nbsp;</span></p>
+<p><span style="font-size: small;">---------- ------------&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 14-AUG-08&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1 14-AUG-08&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;2 14-AUG-08&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">表中已经有内容，说明job已经运行起来了。&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">如何让job停下来？分为两种情况：一种是停止正在运行的job，&nbsp;</span></p>
+<p><span style="font-size: small;">begin&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; dbms_scheduler.STOP_JOB('job_insSysdate');&nbsp;</span></p>
+<p><span style="font-size: small;">end;&nbsp;</span></p>
+<p><span style="font-size: small;">会提示如下错误：ORA-27366 job 'scott.job_insSysdate' is not running .&nbsp;</span></p>
+<p><span style="font-size: small;">另一种是使job disabled，&nbsp;</span></p>
+<p><span style="font-size: small;">begin&nbsp;</span></p>
+<p><span style="font-size: small;">&nbsp; dbms_scheduler.DISABLE('job_insSysdate');&nbsp;</span></p>
+<p><span style="font-size: small;">end;&nbsp;</span></p>
+<p><span style="font-size: small;">可以通过查看job的状态，确认是否使job失效。&nbsp;</span></p>
+<p><span style="font-size: small;">select enabled,status from user_scheduler_jobs;&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;">dbms_scheduler.DISABLE 
+的name参数可以是program、schedule、job等对象。可以disabled的前提是该对象没有被其他的对象引用，比如
+job_insSysdate引用了prg_insSysdate,如果job_insSysdate为enabled，这时不能直接disabled 
+prg_insSysdate .&nbsp;</span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p><span style="font-size: small;"><br></span></p>
+<p>&nbsp;</p>
+  </div>
+
+  
+
+
+  
+  
+  <div id="bottoms" class="clearfix">
+    
+    <div id="share_weibo">分享到：
+      <a data-type="sina" href="javascript:;" title="分享到新浪微博"><img src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/sina.jpg"></a>
+      <a data-type="qq" href="javascript:;" title="分享到腾讯微博"><img src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/tec.jpg"></a>
+    </div>
+  </div>
+
+  <div class="blog_nav">
+    <div class="pre_next">
+      <a href="http://chenlin10058.iteye.com/blog/1558502" class="next" title="Oracle建立用户 ，限制用户访问资源">Oracle建立用户 ，限制用户访问资源</a>
+      |
+      <a href="http://chenlin10058.iteye.com/blog/1558552" class="pre" title="EXTJS 元素,对象选择器">EXTJS 元素,对象选择器</a>
+    </div>
+  </div>
+  <div class="blog_bottom">
+    <ul>
+      <li>2012-06-13 08:40</li>
+      <li>浏览 478</li>
+      <li><a href="#comments">评论(0)</a></li>
+      
+      
+      <li>分类:<a href="http://www.iteye.com/blogs/category/language">编程语言</a></li>      
+      <li class="last"><a href="http://www.iteye.com/wiki/blog/1558488" target="_blank" class="more">相关推荐</a></li>
+    </ul>
+  </div>
+
+  <div class="blog_comment">
+    <h5>评论</h5>
+    <a id="comments" name="comments"></a>
+    
+    
+    
+  </div>
+
+  <div class="blog_comment">
+    <h5>发表评论</h5>
+            <p style="text-align:center; margin-top:30px;margin-bottom:0px;"><a href="http://chenlin10058.iteye.com/login" style="background-color:white;"> <img src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/login_icon.png" style="vertical-align:middle; margin-right: 10px;"></a><a href="http://chenlin10058.iteye.com/login">  您还没有登录,请您登录后再发表评论 </a></p>
+      </div>
+</div>
+
+
+<script type="text/javascript">
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+
+  $$('#main .blog_content pre[name=code]').each(function(pre, index){ // blog content
+    var post_id = 1558488;
+    var location = window.location;
+    source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+    pre.writeAttribute('codeable_id', post_id);
+    pre.writeAttribute('codeable_type', "Blog");
+    pre.writeAttribute('source_url', source_url);
+    pre.writeAttribute('pre_index', index);
+    pre.writeAttribute('title', 'oracle10 新功能DBMS_SCHEDULER 简介');
+  });
+
+  fix_image_size($$('div.blog_content img'), 700);
+
+  function processComment() {
+    $$('#main .blog_comment > div').each(function(comment){// comment
+      var post_id = comment.id.substr(2);
+      $$("#"+comment.id+" pre[name=code]").each(function(pre, index){
+        var location = window.location;
+        source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+        source_url += "#" + comment.id;
+        pre.writeAttribute('codeable_id', post_id);
+        pre.writeAttribute('codeable_type', "BlogComment");
+        pre.writeAttribute('source_url', source_url);
+        pre.writeAttribute('pre_index', index);
+        pre.writeAttribute('title', 'oracle10 新功能DBMS_SCHEDULER 简介');
+      });
+    });
+  }
+
+  function quote_comment(id) {
+    new Ajax.Request('/editor/quote', {
+      parameters: {'id':id, 'type':'BlogComment'},
+      onSuccess:function(response){editor.bbcode_editor.textarea.insertAfterSelection(response.responseText);
+        Element.scrollTo(editor.bbcode_editor.textarea.element);}
+    });
+  }
+
+  code_favorites_init();
+  processComment();
+  new WeiboShare({share_buttons: $('share_weibo'), img_scope: $('blog_content')});
+</script>
+
+
+
+
+        </div>
+
+        <div id="local">
+          <div class="local_top"></div>
+          <div id="blog_owner">
+  <div id="blog_owner_logo"><a href="http://chenlin10058.iteye.com/"><img alt="chenlin10058的博客" class="logo" src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/a7dacd6d-f36c-38ea-b673-f889bab7cec8.jpg" title="chenlin10058的博客: notepad~"></a></div>
+  <div id="blog_owner_name">chenlin10058</div>
+</div>
+
+          <div id="blog_actions">
+            <ul>
+              <li>浏览: 22644 次</li>
+              <li>性别: <img alt="Icon_minigender_1" src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/icon_minigender_1.gif" title="男"></li>
+              <li>来自: 杭州</li>
+              <li><img src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/offline.gif"></li>
+              
+            </ul>
+          </div>
+          <div id="user_visits" class="clearfix">
+            <h5>最近访客 <span style="font-weight:normal;font-size:12px;padding-left:30px;"><a href="http://chenlin10058.iteye.com/blog/user_visits">更多访客&gt;&gt;</a></span></h5>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://dylinshi126.iteye.com/" target="_blank"><img alt="dylinshi126的博客" class="logo" src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo-thumb.gif" title="dylinshi126的博客: "></a></div>
+                <div class="left"><a href="http://dylinshi126.iteye.com/" target="_blank" title="dylinshi126">dylinshi126</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://ltfhxdz.iteye.com/" target="_blank"><img alt="ltfhxdz的博客" class="logo" src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo-thumb.gif" title="ltfhxdz的博客: "></a></div>
+                <div class="left"><a href="http://ltfhxdz.iteye.com/" target="_blank" title="ltfhxdz">ltfhxdz</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://auditionlsl.iteye.com/" target="_blank"><img alt="auditionlsl的博客" class="logo" src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo-thumb.gif" title="auditionlsl的博客: "></a></div>
+                <div class="left"><a href="http://auditionlsl.iteye.com/" target="_blank" title="auditionlsl">auditionlsl</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://77452145.iteye.com/" target="_blank"><img alt="77452145的博客" class="logo" src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/user-logo-thumb.gif" title="77452145的博客: "></a></div>
+                <div class="left"><a href="http://77452145.iteye.com/" target="_blank" title="77452145">77452145</a></div>
+              </div>
+            
+          </div>
+
+          
+
+                      <div id="blog_menu">
+              <h5>文章分类</h5>
+              <ul>
+                <li><a href="http://chenlin10058.iteye.com/">全部博客 (97)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227441">oracle基础 (22)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227561">oracle高级 (32)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227559">java (7)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227587">ocp (1)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227584">jvm (0)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227585">linux shell (4)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227581">hadoop (2)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227563">javascript (9)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227583">jquery/extjs (18)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227586">mysql (0)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/232775">nosql (5)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/232601">python (0)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/232587">ant编译 (1)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227589">hudson集成 (0)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/233832">SCRUM (0)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/227582">其他 (0)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/259187">web/css (1)</a></li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/category/268842">算法原理 (0)</a></li>
+                
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>社区版块</h5>
+              <ul>
+                <li><a href="http://chenlin10058.iteye.com/blog/news">我的资讯</a> (0)</li>
+                <li>
+                  <a href="http://chenlin10058.iteye.com/blog/post">我的论坛</a> (0)
+                </li>
+                <li><a href="http://chenlin10058.iteye.com/blog/answered_problems">我的问答</a> (0)</li>
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>存档分类</h5>
+              <ul>
+                
+                  <li><a href="http://chenlin10058.iteye.com/blog/monthblog/2013-11">2013-11</a> (1)</li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/blog/monthblog/2013-10">2013-10</a> (1)</li>
+                
+                  <li><a href="http://chenlin10058.iteye.com/blog/monthblog/2013-09">2013-09</a> (2)</li>
+                
+                <li><a href="http://chenlin10058.iteye.com/blog/monthblog_more">更多存档...</a></li>
+              </ul>
+            </div>
+            
+            
+
+            <div id="guest_books">
+              <h5>最新评论</h5>
+              <ul>
+                
+                <li>
+                  <a href="http://dragoo1.iteye.com/" target="_blank" title="dragoo1">dragoo1</a>： 
+                  学习了。。。<br>
+                  <a href="http://chenlin10058.iteye.com/blog/1558433#bc2297403">Oracle Bigfile Tablespace and Smallfile Tablespace</a>
+                </li>
+                
+                <li>
+                  <a href="http://jio2006.iteye.com/" target="_blank" title="jio2006">jio2006</a>： 
+                  都是基础，不错<br>
+                  <a href="http://chenlin10058.iteye.com/blog/1558435#bc2285115">oracle中使用on delete cascade</a>
+                </li>
+                
+                <li>
+                  <a href="http://jio2006.iteye.com/" target="_blank" title="jio2006">jio2006</a>： 
+                   ...<br>
+                  <a href="http://chenlin10058.iteye.com/blog/1558435#bc2285113">oracle中使用on delete cascade</a>
+                </li>
+                
+                <li>
+                  <a href="http://showzh.iteye.com/" target="_blank" title="showzh">showzh</a>： 
+                   ...<br>
+                  <a href="http://chenlin10058.iteye.com/blog/1558433#bc2273299">Oracle Bigfile Tablespace and Smallfile Tablespace</a>
+                </li>
+                
+                <li>
+                  <a href="http://mikixiyou.iteye.com/" target="_blank" title="mikixiyou">mikixiyou</a>： 
+                  自己写的吗？挺不错的。<br>
+                  <a href="http://chenlin10058.iteye.com/blog/1558331#bc2263862">Difference between TRUNCATE, DELETE and DROP commands</a>
+                </li>
+                
+              </ul>
+            </div>
+
+            <div class="local_bottom"></div>
+          
+        </div>
+      </div>
+
+      <div id="footer" class="clearfix">
+        <div id="copyright">
+          <hr>
+          声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。若作者同意转载，必须以超链接形式标明文章原始出处和作者。<br>
+          © 2003-2012 ITeye.com.   All rights reserved.  [ 京ICP证110151号  京公网安备110105010620 ]
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.iteye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=' width='0' height='0' />");
+</script><img src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/a.gif" height="0" width="0">
+
+<script src="oracle10%20%E6%96%B0%E5%8A%9F%E8%83%BDDBMS_SCHEDULER%20%E7%AE%80%E4%BB%8B%20-%20notepad%7E%20-%20ITeye%E6%8A%80%E6%9C%AF%E7%BD%91%E7%AB%99_files/tracking.js" type="text/javascript"></script>
+
+    
+    
+  
+
+</body></html>
